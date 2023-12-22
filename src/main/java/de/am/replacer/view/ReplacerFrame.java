@@ -1,11 +1,17 @@
 package de.am.replacer.view;
 
 import lombok.Getter;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Stream;
 
 import static java.awt.event.KeyEvent.VK_ESCAPE;
 import static javax.swing.JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT;
@@ -16,6 +22,7 @@ import static javax.swing.KeyStroke.getKeyStroke;
  */
 @Component
 @Getter
+@Log4j2
 public class ReplacerFrame extends JDialog {
 
     private JPanel replacerPane;
@@ -23,6 +30,8 @@ public class ReplacerFrame extends JDialog {
     private JButton buttonCancel;
     private JTextArea searchText;
     private JTextArea replaceText;
+    private JButton buttonChoose;
+    private JTextField selectedDirectory;
 
     public ReplacerFrame() {
         setContentPane(replacerPane);
@@ -31,6 +40,7 @@ public class ReplacerFrame extends JDialog {
 
         buttonOK.addActionListener(event -> onOK());
         buttonCancel.addActionListener(event -> onCancel());
+        buttonChoose.addActionListener(event -> onChoose());
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -49,25 +59,26 @@ public class ReplacerFrame extends JDialog {
         String searchTxt = searchText.getText();
         String replaceTxt = replaceText.getText();
 
-        System.out.println("--------------------------------------------------------------");
-        System.out.println("searchText = " + searchTxt);
-        System.out.println("replaceText = " + replaceTxt);
-        System.out.println("--------------------------------------------------------------");
+        String directory = selectedDirectory.getText();
+        try (Stream<Path> stream = Files.walk(Paths.get(directory))) {
+            stream.filter(Files::isRegularFile)
+                    .forEach(System.out::println);
+        } catch (IOException ex) {
+            log.error(ex);
+        }
     }
 
     private void onCancel() {
         dispose();
     }
 
-    /*
     private void onChoose() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         int option = fileChooser.showOpenDialog(replacerPane);
         if (option == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            directoryText.setText(file.getName());
+            selectedDirectory.setText(file.getAbsolutePath());
         }
     }
-     */
 }

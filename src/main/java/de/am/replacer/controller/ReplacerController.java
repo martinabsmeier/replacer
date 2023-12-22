@@ -26,8 +26,7 @@ public class ReplacerController {
         int xPos = screenSize.width/2 - width/2;
         int yPos = screenSize.height/2 - height/2;
         replacerFrame.setLocation(xPos, yPos);
-
-        // replacerFrame.getDirectoryText().setEditable(false);
+        replacerFrame.getSelectedDirectory().setEditable(false);
 
         replacerFrame.pack();
         replacerFrame.setVisible(true);
