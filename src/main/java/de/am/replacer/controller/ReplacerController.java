@@ -21,12 +21,15 @@ public class ReplacerController {
 
         replacerFrame.setTitle("Replacer main dialog");
         replacerFrame.setPreferredSize(new Dimension(width, height));
+
         // Center the panel on screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int xPos = screenSize.width/2 - width/2;
         int yPos = screenSize.height/2 - height/2;
         replacerFrame.setLocation(xPos, yPos);
         replacerFrame.getSelectedDirectory().setEditable(false);
+
+        replacerFrame.getFileExtension().setText("java");
 
         replacerFrame.pack();
         replacerFrame.setVisible(true);

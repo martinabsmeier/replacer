@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static java.awt.event.KeyEvent.VK_ESCAPE;
@@ -32,6 +33,7 @@ public class ReplacerFrame extends JDialog {
     private JTextArea replaceText;
     private JButton buttonChoose;
     private JTextField selectedDirectory;
+    private JTextField fileExtension;
 
     public ReplacerFrame() {
         setContentPane(replacerPane);
@@ -55,14 +57,21 @@ public class ReplacerFrame extends JDialog {
         replacerPane.registerKeyboardAction(event -> onCancel(), getKeyStroke(VK_ESCAPE, 0), WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
-    private void onOK() {
-        String searchTxt = searchText.getText();
-        String replaceTxt = replaceText.getText();
+    // #################################################################################################################
 
+    private void onOK() {
         String directory = selectedDirectory.getText();
-        try (Stream<Path> stream = Files.walk(Paths.get(directory))) {
-            stream.filter(Files::isRegularFile)
-                    .forEach(System.out::println);
+
+        try (Stream<Path> fileStream = Files.walk(Paths.get(directory))) {
+            String extension = fileExtension.getText();
+
+            List<File> files = fileStream.filter(Files::isRegularFile)
+                    .filter(Files::isWritable)
+                    .map(Path::toFile)
+                    .filter(file -> file.getName().endsWith(extension))
+                    .toList();
+
+            replaceHeader(files);
         } catch (IOException ex) {
             log.error(ex);
         }
@@ -80,5 +89,13 @@ public class ReplacerFrame extends JDialog {
             File file = fileChooser.getSelectedFile();
             selectedDirectory.setText(file.getAbsolutePath());
         }
+    }
+
+    private void replaceHeader(List<File> files) {
+        String searchTxt = searchText.getText();
+        String replaceTxt = replaceText.getText();
+
+
+
     }
 }
